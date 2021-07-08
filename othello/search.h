@@ -6,4 +6,5 @@ struct Search{
     int evaluate(const State state);
 
     Operator search(State state);
+    std::pair<int, Operator> search2(State state, int depth);
 };

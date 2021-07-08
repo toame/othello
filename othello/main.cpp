@@ -17,16 +17,18 @@ int main()
                 ope = search.make_random_next_move(state);
             }
             else {
-                ope = search.search(state);
+                //ope = search.search(state);
+                ope = search.search2(state, 2).second;
+                //std::cout << search.evaluate(state) << " " << search.search3(state, 2).first << std::endl;
             }
             state = makeMove(state, ope);
 
-            //std::cout << search.evaluate(state) << std::endl;
+            
         }
         if ((getResult(state) > 0) ^ (WHITE == g % 2)) win++;
         else if ((getResult(state) < 0) ^ (WHITE == g % 2)) lose++;
         else draw++;
-        if ((g + 1) % 1000 == 0) {
+        if ((g + 1) % 100 == 0) {
             std::cout << getString(state) << std::endl;
            
             std::cout << getResult(state) << " " << win << ":" << draw << ":" << lose << std::endl;
