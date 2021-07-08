@@ -40,3 +40,4 @@ Uint64 makeLegalBoard(const State state);
 std::string getString(const State state);
 void showBoard(const Uint64 board);
 int legalMoveCounter(const State state);
+bool is_finished_game(State state);

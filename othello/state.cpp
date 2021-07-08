@@ -160,3 +160,13 @@ void showBoard(const Uint64 board) {
 int legalMoveCounter(const State state) {
 	return std::bitset<64>(makeLegalBoard(state)).count();
 }
+
+bool is_finished_game(const State state) {
+	if (std::bitset<64>(state.white | state.black).count() == 0) return true;
+	const int playerLegalMove = legalMoveCounter(state);
+	State state2 = state;
+	state2.turn = !state2.turn;
+	const int opponentLegalMove = legalMoveCounter(state2);
+	if (playerLegalMove == 0 && opponentLegalMove == 0) return true;
+	return false;
+}
