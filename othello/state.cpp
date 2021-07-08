@@ -1,10 +1,9 @@
 #include <iostream>
 #include <string>
+#include <bitset>
 #include "State.h"
 
-
-
-std::string getString(State state) {
+std::string getString(const State state) {
 	std::string str;
 	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
 		int board_num = i;
@@ -22,7 +21,7 @@ std::string getString(State state) {
 	}
 	return str;
 }
-Uint64 transfer(Operator ope, int dir) {
+Uint64 transfer(const Operator ope, const int dir) {
 	if (dir == UPPER) return (ope << 8) & 0xffffffffffffff00;
 	else if (dir == UPPER_RIGHT) return (ope << 7) & 0x7f7f7f7f7f7f7f00;
 	else if (dir == RIGHT) return (ope >> 1) & 0x7f7f7f7f7f7f7f7f;
@@ -35,18 +34,11 @@ Uint64 transfer(Operator ope, int dir) {
 }
 
 
-State reverse(State state, Operator ope) {
+State reverse(State state, const Operator ope) {
 	Uint64 reverse_bit = 0;
-	Uint64 opponentBoard;
-	Uint64 playerBoard;
-	if (state.turn == BLACK) {
-		playerBoard = state.black;
-		opponentBoard = state.white;
-	}
-	else {
-		playerBoard = state.white;
-		opponentBoard = state.black;
-	}
+	Uint64 opponentBoard = state.getOpponentBoard();
+	Uint64 playerBoard = state.getPlayerBoard();
+
 	// 8方向それぞれに対して、ひっくり返すかの判定を行う
 	for (int dir = 0; dir < 8; dir++) {
 		Uint64 reverse_bit_ = 0;
@@ -62,10 +54,10 @@ State reverse(State state, Operator ope) {
 			reverse_bit |= reverse_bit_;
 		}
 	}
-	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
-		std::cout << ((reverse_bit & (1ULL << i)) != 0);
-		if (i % 8 == 7) std::cout << std::endl;
-	}
+	//for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+	//	std::cout << ((reverse_bit & (1ULL << i)) != 0);
+	//	if (i % 8 == 7) std::cout << std::endl;
+	//}
 	playerBoard ^= ope | reverse_bit;
 	opponentBoard ^= reverse_bit;
 	if (state.turn == BLACK) {
@@ -76,15 +68,95 @@ State reverse(State state, Operator ope) {
 		state.black = opponentBoard;
 		state.white = playerBoard;
 	}
-	std::cout << getString(state) << std::endl;
+
 	return state;
 }
 
 
-
-State makeMove(State state, Operator ope) {
-	state.turn = !state.turn;
-	if (ope == 0) return state;
-	return reverse(state, ope);
+State makeMove(State state, const Operator ope) {
+	
+	State next_state = reverse(state, ope);
+	next_state.turn = !next_state.turn;
+	return next_state;
 }
 
+Uint64 makeLegalBoard(const State state) {
+	const Uint64 horizontalBoard = state.getOpponentBoard() & 0x7e7e7e7e7e7e7e7e;
+	const Uint64 verticalBoard = state.getOpponentBoard() & 0x00FFFFFFFFFFFF00;
+	const Uint64 allSideBoard = state.getOpponentBoard() & 0x007e7e7e7e7e7e00;
+	const Uint64 blankBoard = ~(state.getPlayerBoard() | state.getOpponentBoard());
+	Uint64 tmp;
+	Uint64 legalBoard;
+	
+	// 左
+	tmp = horizontalBoard & (state.getPlayerBoard() << 1);
+	for (int i = 0; i < 5; i++) {
+		tmp |= horizontalBoard & (tmp << 1);
+	}
+	legalBoard = blankBoard & (tmp << 1);
+	
+	// 右
+	tmp = horizontalBoard & (state.getPlayerBoard() >> 1);
+	for (int i = 0; i < 5; i++) {
+		tmp |= horizontalBoard & (tmp >> 1);
+	}
+	legalBoard |= blankBoard & (tmp >> 1);
+
+	// 上
+	tmp = verticalBoard & (state.getPlayerBoard() << 8);
+	for (int i = 0; i < 5; i++) {
+		tmp |= verticalBoard & (tmp << 8);
+	}
+	legalBoard |= blankBoard & (tmp << 8);
+
+	// 下
+	tmp = verticalBoard & (state.getPlayerBoard() >> 8);
+	for (int i = 0; i < 5; i++) {
+		tmp |= verticalBoard & (tmp >> 8);
+	}
+	legalBoard |= blankBoard & (tmp >> 8);
+
+	// 右上
+	tmp = allSideBoard & (state.getPlayerBoard() << 7);
+	for (int i = 0; i < 5; i++) {
+		tmp |= allSideBoard & (tmp << 7);
+	}
+	legalBoard |= blankBoard & (tmp << 7);
+
+	// 左上
+	tmp = allSideBoard & (state.getPlayerBoard() << 9);
+	for (int i = 0; i < 5; i++) {
+		tmp |= allSideBoard & (tmp << 9);
+	}
+	legalBoard |= blankBoard & (tmp << 9);
+
+	// 右下
+	tmp = allSideBoard & (state.getPlayerBoard() >> 9);
+	for (int i = 0; i < 5; i++) {
+		tmp |= allSideBoard & (tmp >> 9);
+	}
+	legalBoard |= blankBoard & (tmp >> 9);
+
+	// 左下
+	tmp = allSideBoard & (state.getPlayerBoard() >> 7);
+	for (int i = 0; i < 5; i++) {
+		tmp |= allSideBoard & (tmp >> 7);
+	}
+	legalBoard |= blankBoard & (tmp >> 7);
+
+
+	return legalBoard;
+}
+
+void showBoard(const Uint64 board) {
+	for (int i = 0; i < BOARD_SIZE2; i++) {
+		std::cout << ((board & (1ULL << i)) != 0);
+		if (i % BOARD_SIZE == BOARD_SIZE - 1) {
+			std::cout << std::endl;
+		}
+	}
+}
+
+int legalMoveCounter(const State state) {
+	return std::bitset<64>(makeLegalBoard(state)).count();
+}

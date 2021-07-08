@@ -11,6 +11,7 @@
 #define BLACK (1)
 #define WHITE (0)
 #define BOARD_SIZE (8)
+#define BOARD_SIZE2 (BOARD_SIZE * BOARD_SIZE)
 typedef unsigned long long int Uint64;
 
 typedef struct State {
@@ -21,12 +22,21 @@ typedef struct State {
 		white = 0x0000001008000000;
 		turn = BLACK;
 	}
+	Uint64 getPlayerBoard() const {
+		if (turn == BLACK) return black;
+		else return white;
+	}
+	Uint64 getOpponentBoard() const {
+		if (turn == BLACK) return white;
+		else return black;
+	}
 } State;
 
 typedef unsigned long long int Operator;
-State makeMove(State state, Operator ope);
-Uint64 transfer(Operator ope, int dir);
-State reverse(State state, Operator ope);
-std::string getString(State state);
-
-
+State makeMove(const State state, const Operator ope);
+Uint64 transfer(const Operator ope, const int dir);
+State reverse(State state, const Operator ope);
+Uint64 makeLegalBoard(const State state);
+std::string getString(const State state);
+void showBoard(const Uint64 board);
+int legalMoveCounter(const State state);
