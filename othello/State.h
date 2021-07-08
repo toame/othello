@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #define UPPER (0)
 #define UPPER_RIGHT (1)
 #define RIGHT (2)
@@ -41,3 +42,5 @@ std::string getString(const State state);
 void showBoard(const Uint64 board);
 int legalMoveCounter(const State state);
 bool is_finished_game(State state);
+std::vector<Operator> get_legal_move_vector(const State state);
+int getResult(const State state);

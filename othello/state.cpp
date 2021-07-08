@@ -170,3 +170,19 @@ bool is_finished_game(const State state) {
 	if (playerLegalMove == 0 && opponentLegalMove == 0) return true;
 	return false;
 }
+
+std::vector<Operator> get_legal_move_vector(const State state) {
+	std::vector<Operator> v;
+	const Uint64 legalBoard = makeLegalBoard(state);
+	for (int i = 0; i < 64; i++) {
+		if (legalBoard & (1ULL << i)) {
+			v.push_back(1ULL << i);
+		}
+	}
+	return v;
+}
+int getResult(const State state) {
+	const int blackScore = std::bitset<64>(state.black).count();
+	const int whiteScore = std::bitset<64>(state.white).count();
+	return blackScore - whiteScore;
+}
