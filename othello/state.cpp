@@ -158,17 +158,26 @@ void showBoard(const Uint64 board) {
 }
 
 int legalMoveCounter(const State state) {
+	Uint64 board = makeLegalBoard(state);
+	//Uint64 mask = 0x8000000000000000;
+	//int ret = 0;
+	//for (int i = 0; i < BOARD_SIZE2; i++) {
+	//	if (mask & board) ret++;
+	//	mask >>= 1;
+	//}
+	//return ret;
 	return std::bitset<64>(makeLegalBoard(state)).count();
 }
 
 bool is_finished_game(const State state) {
 	if (std::bitset<64>(state.white | state.black).count() == 0) return true;
 	const int playerLegalMove = legalMoveCounter(state);
+	if (playerLegalMove != 0) return false;
 	State state2 = state;
 	state2.turn = !state2.turn;
 	const int opponentLegalMove = legalMoveCounter(state2);
-	if (playerLegalMove == 0 && opponentLegalMove == 0) return true;
-	return false;
+	if (opponentLegalMove != 0) return false;
+	return true;
 }
 
 std::vector<Operator> get_legal_move_vector(const State state) {
@@ -184,5 +193,8 @@ std::vector<Operator> get_legal_move_vector(const State state) {
 int getResult(const State state) {
 	const int blackScore = std::bitset<64>(state.black).count();
 	const int whiteScore = std::bitset<64>(state.white).count();
+	const int remain = std::bitset<64>(~(state.white | state.black)).count();
+	if (blackScore == 0) return 64 + remain;
+	if (whiteScore == 0) return 64 + remain;
 	return blackScore - whiteScore;
 }
