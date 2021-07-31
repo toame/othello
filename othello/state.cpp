@@ -148,6 +148,153 @@ Uint64 makeLegalBoard(const State state) {
 	return legalBoard;
 }
 
+Uint64 makeLegalOpponentBoard(const State state) {
+	const Uint64 horizontalBoard = state.getPlayerBoard() & 0x7e7e7e7e7e7e7e7e;
+	const Uint64 verticalBoard = state.getPlayerBoard() & 0x00FFFFFFFFFFFF00;
+	const Uint64 allSideBoard = state.getPlayerBoard() & 0x007e7e7e7e7e7e00;
+	const Uint64 blankBoard = ~(state.getPlayerBoard() | state.getOpponentBoard());
+	Uint64 tmp;
+	Uint64 legalBoard;
+
+	// 左
+	tmp = horizontalBoard & (state.getOpponentBoard() << 1);
+	for (int i = 0; i < 5; i++) {
+		tmp |= horizontalBoard & (tmp << 1);
+	}
+	legalBoard = blankBoard & (tmp << 1);
+
+	// 右
+	tmp = horizontalBoard & (state.getOpponentBoard() >> 1);
+	for (int i = 0; i < 5; i++) {
+		tmp |= horizontalBoard & (tmp >> 1);
+	}
+	legalBoard |= blankBoard & (tmp >> 1);
+
+	// 上
+	tmp = verticalBoard & (state.getOpponentBoard() << 8);
+	for (int i = 0; i < 5; i++) {
+		tmp |= verticalBoard & (tmp << 8);
+	}
+	legalBoard |= blankBoard & (tmp << 8);
+
+	// 下
+	tmp = verticalBoard & (state.getOpponentBoard() >> 8);
+	for (int i = 0; i < 5; i++) {
+		tmp |= verticalBoard & (tmp >> 8);
+	}
+	legalBoard |= blankBoard & (tmp >> 8);
+
+	// 右上
+	tmp = allSideBoard & (state.getOpponentBoard() << 7);
+	for (int i = 0; i < 5; i++) {
+		tmp |= allSideBoard & (tmp << 7);
+	}
+	legalBoard |= blankBoard & (tmp << 7);
+
+	// 左上
+	tmp = allSideBoard & (state.getOpponentBoard() << 9);
+	for (int i = 0; i < 5; i++) {
+		tmp |= allSideBoard & (tmp << 9);
+	}
+	legalBoard |= blankBoard & (tmp << 9);
+
+	// 右下
+	tmp = allSideBoard & (state.getOpponentBoard() >> 9);
+	for (int i = 0; i < 5; i++) {
+		tmp |= allSideBoard & (tmp >> 9);
+	}
+	legalBoard |= blankBoard & (tmp >> 9);
+
+	// 左下
+	tmp = allSideBoard & (state.getOpponentBoard() >> 7);
+	for (int i = 0; i < 5; i++) {
+		tmp |= allSideBoard & (tmp >> 7);
+	}
+	legalBoard |= blankBoard & (tmp >> 7);
+
+
+	return legalBoard;
+}
+
+Uint64 makeConfirmBoard(const State state) {
+	
+	const Uint64 PlayerBoard = state.getPlayerBoard() & 0x8100000000000081;
+	Uint64 ConfirmBoard = PlayerBoard;
+	if (ConfirmBoard == 0) return ConfirmBoard;
+	
+
+	// 上
+	Uint64 tmp = PlayerBoard & 0x0000000000000081;
+	for (int i = 0; i < 7; i++) {
+		tmp |= (tmp << 8) & state.getPlayerBoard();
+	}
+	ConfirmBoard |= tmp;
+
+	// 下
+	tmp = PlayerBoard & 0x8100000000000000;
+	for (int i = 0; i < 7; i++) {
+		tmp |= (tmp >> 8) & state.getPlayerBoard();
+	}
+	ConfirmBoard |= tmp;
+
+	// 右
+	tmp = PlayerBoard & 0x8000000000000080;
+	for (int i = 0; i < 7; i++) {
+		tmp |= (tmp >> 1) & state.getPlayerBoard();
+	}
+	ConfirmBoard |= tmp;
+
+	// 左
+	tmp = PlayerBoard & 0x0100000000000001;
+	for (int i = 0; i < 7; i++) {
+		tmp |= (tmp << 1) & state.getPlayerBoard();
+	}
+	ConfirmBoard |= tmp;
+
+	return ConfirmBoard;
+
+}
+
+Uint64 makeConfirmOpponentBoard(const State state) {
+
+	const Uint64 PlayerBoard = state.getOpponentBoard() & 0x8100000000000081;
+	Uint64 ConfirmBoard = PlayerBoard;
+	if (ConfirmBoard == 0) return ConfirmBoard;
+
+
+	// 上
+	Uint64 tmp = PlayerBoard & 0x0000000000000081;
+	for (int i = 0; i < 7; i++) {
+		tmp |= (tmp << 8) & state.getOpponentBoard();
+	}
+	ConfirmBoard |= tmp;
+
+	// 下
+	tmp = PlayerBoard & 0x8100000000000000;
+	for (int i = 0; i < 7; i++) {
+		tmp |= (tmp >> 8) & state.getOpponentBoard();
+	}
+	ConfirmBoard |= tmp;
+
+	// 右
+	tmp = PlayerBoard & 0x8000000000000080;
+	for (int i = 0; i < 7; i++) {
+		tmp |= (tmp >> 1) & state.getOpponentBoard();
+	}
+	ConfirmBoard |= tmp;
+
+	// 左
+	tmp = PlayerBoard & 0x0100000000000001;
+	for (int i = 0; i < 7; i++) {
+		tmp |= (tmp << 1) & state.getOpponentBoard();
+	}
+	ConfirmBoard |= tmp;
+
+	return ConfirmBoard;
+
+}
+
+
 void showBoard(const Uint64 board) {
 	for (int i = 0; i < BOARD_SIZE2; i++) {
 		std::cout << ((board & (1ULL << i)) != 0);
