@@ -17,11 +17,11 @@ Operator Search::make_random_next_move(const State state)const {
 	return next_ope;
 }
 
-int Search::evaluate(const State state) {
-	const int weight1 = 1;
-	const int weight2 = 2;
-	const int weight3 = 10;
-	const int weight4 = 10;
+int Search::evaluate(const State state, const int w1, const int w2, const int w3, const int w4) {
+	const int weight1 = 10;
+	const int weight2 = 20;
+	const int weight3 = 100;
+	const int weight4 = 100;
  	if (is_finished_game(state)) {
 		int remain = std::bitset<64>(~(state.white | state.black)).count();
 		if (state.turn == BLACK)
@@ -46,46 +46,46 @@ int Search::evaluate(const State state) {
 	const int able_put_count_player = std::bitset<64>(Legalboard).count();
 	const int able_put_count_opponent = std::bitset<64>(Legalboard_opponent).count();
 	return
-		(able_put_count_player - able_put_count_opponent) * weight1
-		+ (Confirm_stone_player - Confirm_stone_opponent) * weight2
-		+ (able_corners_player - able_corners_opponent) * weight3
-		+ (corners_player - corners_opponent) * weight4
+		(able_put_count_player - able_put_count_opponent) * w1
+		+ (Confirm_stone_player - Confirm_stone_opponent) * w2
+		+ (able_corners_player - able_corners_opponent) * w3
+		+ (corners_player - corners_opponent) * w4
 		;
 }
 
-Operator Search::search(State state) {
-	std::vector<Operator> moves = get_legal_move_vector(state);
-	if (moves.size() == 0) return 0;
-	Operator next_ope = 0;
-	int max_eval = -10000000;
-	for (auto ope : moves) {
-		State next_state = makeMove(state, ope);
-		int eval = -Search::evaluate(next_state);
-		if (max_eval < eval) {
-			max_eval = eval;
-			next_ope = ope;
-		}
-	}
-	return next_ope;
-}
-
-std::pair<int, Operator> Search::search2(State state, int depth) {
-	if (depth == 0) return std::make_pair(Search::evaluate(state), 0);
-	std::vector<Operator> moves = get_legal_move_vector(state);
-	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state), 0);
-	Operator next_ope = 0;
-	int max_eval = -10000000;
-	if (moves.size() == 0) moves.push_back(0);
-	for (auto ope : moves) {
-		State next_state = makeMove(state, ope);
-		int eval = -Search::search2(next_state, depth - 1).first;
-		if (max_eval < eval) {
-			max_eval = eval;
-			next_ope = ope;
-		}
-	}
-	return std::make_pair(max_eval, next_ope);
-}
+//Operator Search::search(State state) {
+//	std::vector<Operator> moves = get_legal_move_vector(state);
+//	if (moves.size() == 0) return 0;
+//	Operator next_ope = 0;
+//	int max_eval = -10000000;
+//	for (auto ope : moves) {
+//		State next_state = makeMove(state, ope);
+//		int eval = -Search::evaluate(next_state);
+//		if (max_eval < eval) {
+//			max_eval = eval;
+//			next_ope = ope;
+//		}
+//	}
+//	return next_ope;
+//}
+//
+//std::pair<int, Operator> Search::search2(State state, int depth) {
+//	if (depth == 0) return std::make_pair(Search::evaluate(state), 0);
+//	std::vector<Operator> moves = get_legal_move_vector(state);
+//	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state), 0);
+//	Operator next_ope = 0;
+//	int max_eval = -10000000;
+//	if (moves.size() == 0) moves.push_back(0);
+//	for (auto ope : moves) {
+//		State next_state = makeMove(state, ope);
+//		int eval = -Search::search2(next_state, depth - 1).first;
+//		if (max_eval < eval) {
+//			max_eval = eval;
+//			next_ope = ope;
+//		}
+//	}
+//	return std::make_pair(max_eval, next_ope);
+//}
 const int order[64] = { 0, 7, 56, 63,
 							1, 2, 3, 4, 5, 6,
 							8, 10, 11, 12, 13, 15,
@@ -96,9 +96,9 @@ const int order[64] = { 0, 7, 56, 63,
 							48, 50, 51, 52, 53, 55,
 							57, 58, 59, 60, 61, 62, 
 						9, 14, 49, 54};
-std::pair<int, Operator> Search::search3(State state, int depth, int alpha, int beta) {
-	if (depth == 0) return std::make_pair(Search::evaluate(state), 0);
-	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state), 0);
+std::pair<int, Operator> Search::search3(State state, int depth, int alpha, int beta, const int w1, const int w2, const int w3, const int w4) {
+	if (depth == 0) return std::make_pair(Search::evaluate(state, w1, w2, w3, w4), 0);
+	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state, w1, w2, w3, w4), 0);
 	Operator next_ope = 0;
 	Uint64 legalBoard = makeLegalBoard(state);
 	int first_alpha = -120000000;
@@ -135,7 +135,7 @@ std::pair<int, Operator> Search::search3(State state, int depth, int alpha, int 
 		//Operator ope = (1ULL << i);
 		if (legalBoard == 0) ope = 0;
 		State next_state = makeMove(state, ope);
-		const int next_alpha = -Search::search3(next_state, depth - 1, -beta, -alpha).first;
+		const int next_alpha = -Search::search3(next_state, depth - 1, -beta, -alpha, w1, w2, w3, w4).first;
 		if (first_alpha < next_alpha) {
 			next_ope = ope;
 			first_alpha = next_alpha;
