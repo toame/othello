@@ -9,8 +9,9 @@
 #define LOWER_LEFT (5)
 #define LEFT (6)
 #define UPPER_LEFT (7)
-#define BLACK (1)
-#define WHITE (0)
+#define BLACK (0)
+#define WHITE (1)
+#define PASS (0)
 #define BOARD_SIZE (8)
 #define BOARD_SIZE2 (BOARD_SIZE * BOARD_SIZE)
 typedef unsigned long long int Uint64;
@@ -39,8 +40,6 @@ Uint64 transfer(const Operator ope, const int dir);
 State reverse(State state, const Operator ope);
 Uint64 makeLegalBoard(const State state);
 Uint64 makeConfirmBoard(const State state);
-Uint64 makeConfirmOpponentBoard(const State state);
-Uint64 makeLegalOpponentBoard(const State state);
 std::string getString(const State state);
 void showBoard(const Uint64 board);
 int legalMoveCounter(const State state);

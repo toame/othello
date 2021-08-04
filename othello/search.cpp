@@ -9,6 +9,7 @@ unsigned int randInt() {
 	return (tw = (tw ^ (tw >> 19)) ^ (tt ^ (tt >> 8)));
 }
 
+// ‡–@è‚©‚çƒ‰ƒ“ƒ_ƒ€‚Éoperator‚ğ¶¬
 Operator Search::make_random_next_move(const State state)const {
 	Uint64 legalBoard = makeLegalBoard(state);
 	std::vector<Operator> moves = get_legal_move_vector(state);
@@ -17,71 +18,44 @@ Operator Search::make_random_next_move(const State state)const {
 	return next_ope;
 }
 
+
+// ”Õ–Ê‚Ìó‘Ô‚©‚ç•]‰¿’l‚ğŒvZ
 int Search::evaluate(const State state, const int w1, const int w2, const int w3, const int w4) {
+	// ƒQ[ƒ€‚ªI—¹‚µ‚Ä‚¢‚½‚çAÎ‚Ì·‚ğ•]‰¿‚Ì’l‚Æ‚·‚é
  	if (is_finished_game(state)) {
 		int remain = std::bitset<64>(~(state.white | state.black)).count();
 		if (state.turn == BLACK)
-			return getResult(state) * 100;
+			return getResult(state) * 10000; // Î‚Ì·‚ÍÅ‚àM—p‚³‚ê‚é‚×‚«•]‰¿‚È‚Ì‚ÅA’l‚ğ‘å‚«‚­‚·‚é
 		else
-			return -getResult(state) * 100;
+			return -getResult(state) * 10000;
 	}
-	int corners_player = 0, corners_opponent = 0;
-	int able_corners_player = 0, able_corners_opponent = 0;
+	int corners_player = 0, corners_opponent = 0;			//4‹÷‚ÌÎ‚Ì”
+	int able_corners_player = 0, able_corners_opponent = 0;	//4‹÷‚É‘Å‚Ä‚é”
+	State opponent_state = state;
+	opponent_state.turn = !opponent_state.turn;
 	const int u[4] = { 0, 7, 56, 63 };
 	const Uint64 Legalboard = makeLegalBoard(state);
-	const Uint64 Legalboard_opponent = makeLegalOpponentBoard(state);
+	const Uint64 Legalboard_opponent = makeLegalBoard(opponent_state);
+	// ’[‚Ìó‘Ô‚ğŒvZ
 	for (int i = 0; i < 4; i++) {
 		if (state.getPlayerBoard() & (1ULL << u[i])) corners_player++;
-		if (state.getOpponentBoard() & (1ULL << u[i])) corners_opponent++;
+		if (opponent_state.getPlayerBoard() & (1ULL << u[i])) corners_opponent++;
 		if (Legalboard & (1ULL << u[i])) able_corners_player++;
 		if (Legalboard_opponent & (1ULL << u[i])) able_corners_opponent++;
 	}
-	const int Confirm_stone_player = std::bitset<64>(makeConfirmBoard(state)).count();
-	const int Confirm_stone_opponent = std::bitset<64>(makeConfirmOpponentBoard(state)).count();
+	const int Confirm_stone_player = std::bitset<64>(makeConfirmBoard(state)).count();			// è”Ô‘¤‚ÌŠm’èÎ‚Ì”
+	const int Confirm_stone_opponent = std::bitset<64>(makeConfirmBoard(opponent_state)).count();// ‘Šè”Ô‘¤‚ÌŠm’èÎ‚Ì”
 
-	const int able_put_count_player = std::bitset<64>(Legalboard).count();
-	const int able_put_count_opponent = std::bitset<64>(Legalboard_opponent).count();
+	const int able_put_count_player = std::bitset<64>(Legalboard).count();						// ‡–@è‚Ì”
+	const int able_put_count_opponent = std::bitset<64>(Legalboard_opponent).count();			// è”Ô”½“]‚Ì‡–@è‚Ì”
 	return
-		(able_put_count_player - able_put_count_opponent) * w1
-		+ (Confirm_stone_player - Confirm_stone_opponent) * w2
-		+ (able_corners_player - able_corners_opponent) * w3
-		+ (corners_player - corners_opponent) * w4
+		(able_put_count_player - able_put_count_opponent) * w1	// ‘Å‚Ä‚éè‚Ì·‚ğ•]‰¿
+		+ (Confirm_stone_player - Confirm_stone_opponent) * w2  // Šm’èÎ‚Ì·‚ğ•]‰¿
+		+ (able_corners_player - able_corners_opponent) * w3	// 4‹÷‚ğ‘Å‚Ä‚éè‚Ì·‚ğ•]‰¿
+		+ (corners_player - corners_opponent) * w4				// 4‹÷‚ÌÎ‚Ì·‚ğ•]‰¿
 		;
 }
-
-//Operator Search::search(State state) {
-//	std::vector<Operator> moves = get_legal_move_vector(state);
-//	if (moves.size() == 0) return 0;
-//	Operator next_ope = 0;
-//	int max_eval = -10000000;
-//	for (auto ope : moves) {
-//		State next_state = makeMove(state, ope);
-//		int eval = -Search::evaluate(next_state);
-//		if (max_eval < eval) {
-//			max_eval = eval;
-//			next_ope = ope;
-//		}
-//	}
-//	return next_ope;
-//}
-//
-//std::pair<int, Operator> Search::search2(State state, int depth) {
-//	if (depth == 0) return std::make_pair(Search::evaluate(state), 0);
-//	std::vector<Operator> moves = get_legal_move_vector(state);
-//	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state), 0);
-//	Operator next_ope = 0;
-//	int max_eval = -10000000;
-//	if (moves.size() == 0) moves.push_back(0);
-//	for (auto ope : moves) {
-//		State next_state = makeMove(state, ope);
-//		int eval = -Search::search2(next_state, depth - 1).first;
-//		if (max_eval < eval) {
-//			max_eval = eval;
-//			next_ope = ope;
-//		}
-//	}
-//	return std::make_pair(max_eval, next_ope);
-//}
+// ’[‚Ìè‚©‚çæ‚É“Ç‚Ş‚æ‚¤‚Éİ’è‚·‚é
 const int order[64] = { 0, 7, 56, 63,
 							1, 2, 3, 4, 5, 6,
 							8, 10, 11, 12, 13, 15,
@@ -92,59 +66,32 @@ const int order[64] = { 0, 7, 56, 63,
 							48, 50, 51, 52, 53, 55,
 							57, 58, 59, 60, 61, 62, 
 						9, 14, 49, 54};
-std::pair<int, Operator> Search::search3(State state, int depth, int alpha, int beta, const int w1, const int w2, const int w3, const int w4) {
-	if (depth == 0) return std::make_pair(Search::evaluate(state, w1, w2, w3, w4), 0);
-	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state, w1, w2, w3, w4), 0);
+
+// alpha-beta’Tõ‚Ås‚¤
+std::pair<int, Operator> Search::search(State state, int depth, int alpha, int beta, const int w1, const int w2, const int w3, const int w4) {
+	if (depth == 0) return std::make_pair(Search::evaluate(state, w1, w2, w3, w4), 0);				// c‚è’Tõ[‚³‚ª0‚È‚ç•]‰¿
+	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state, w1, w2, w3, w4), 0); // ”Õ–Ê‚ªI—¹‚µ‚Ä‚¢‚½‚ç•]‰¿
 	Operator next_ope = 0;
 	Uint64 legalBoard = makeLegalBoard(state);
-	int first_alpha = -120000000;
+	int first_alpha = -100000000;
 	std::vector<std::pair<int, Uint64>> v;
-	//if (depth > 5) {
-	//	for (int i = 0; i < BOARD_SIZE2; i++) {
-	//		if (legalBoard != 0 && !(legalBoard & (1ULL << order[i]))) continue;
-	//		Operator ope = (1ULL << order[i]);
-	//		State next_state = makeMove(state, ope);
-	//		v.push_back({ Search::evaluate(next_state), ope });
-	//	}
-	//	sort(v.begin(), v.end());
-	//	for (auto p : v) {
-	//		Operator ope = p.second;
-	//		State next_state = makeMove(state, ope);
-	//		const int next_alpha = -Search::search3(next_state, depth - 1, -beta, -alpha).first;
-	//		if (first_alpha < next_alpha) {
-	//			next_ope = ope;
-	//			first_alpha = next_alpha;
-	//		}
-	//		alpha = std::max(alpha, first_alpha);
-	//		if (alpha >= beta) {
-	//			return std::make_pair(alpha, next_ope);
-	//		}
-	//	}
 
-	//	return std::make_pair(alpha, next_ope);
-	//}
-	
+	// ‡–@è‚ğ’Tõ‚·‚é
 	for (int i = 0; i < BOARD_SIZE2; i++) {
 		if (legalBoard != 0 && !(legalBoard & (1ULL << order[i]))) continue;
 		Operator ope = (1ULL << order[i]);
-		//if (legalBoard != 0 && !(legalBoard & (1ULL << i))) continue;
-		//Operator ope = (1ULL << i);
-		if (legalBoard == 0) ope = 0;
+		if (legalBoard == 0) ope = PASS;
 		State next_state = makeMove(state, ope);
-		const int next_alpha = -Search::search3(next_state, depth - 1, -beta, -alpha, w1, w2, w3, w4).first;
+		const int next_alpha = -Search::search(next_state, depth - 1, -beta, -alpha, w1, w2, w3, w4).first;
 		if (first_alpha < next_alpha) {
 			next_ope = ope;
 			first_alpha = next_alpha;
 		}
 		alpha = std::max(alpha, first_alpha);
 		if (alpha >= beta) {
-			//std::cerr << alpha << " " << beta << std::endl;
 			return std::make_pair(alpha, next_ope);
 		}
-		//if (depth == 2) {
-		//	std::cerr << alpha << " " << beta << std::endl;
-		//}
-		if (legalBoard == 0) break;
+		if (legalBoard == 0) break;	// PASS‚ğ’²‚×‚½‚çI—¹
 	}
 	return std::make_pair(alpha , next_ope);
 }

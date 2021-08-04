@@ -38,7 +38,7 @@ Uint64 transfer(const Operator ope, const int dir) {
 	else return 0;
 }
 
-
+// operatorに対応して石をひっくり返した盤面状態を返す
 State reverse(State state, const Operator ope) {
 	Uint64 reverse_bit = 0;
 	Uint64 opponentBoard = state.getOpponentBoard();
@@ -59,10 +59,6 @@ State reverse(State state, const Operator ope) {
 			reverse_bit |= reverse_bit_;
 		}
 	}
-	//for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
-	//	std::cout << ((reverse_bit & (1ULL << i)) != 0);
-	//	if (i % 8 == 7) std::cout << std::endl;
-	//}
 	playerBoard ^= ope | reverse_bit;
 	opponentBoard ^= reverse_bit;
 	if (state.turn == BLACK) {
@@ -79,12 +75,12 @@ State reverse(State state, const Operator ope) {
 
 
 State makeMove(State state, const Operator ope) {
-	
 	State next_state = reverse(state, ope);
 	next_state.turn = !next_state.turn;
 	return next_state;
 }
 
+// 合法手のビットボードを生成
 Uint64 makeLegalBoard(const State state) {
 	const Uint64 horizontalBoard = state.getOpponentBoard() & 0x7e7e7e7e7e7e7e7e;
 	const Uint64 verticalBoard = state.getOpponentBoard() & 0x00FFFFFFFFFFFF00;
@@ -153,74 +149,7 @@ Uint64 makeLegalBoard(const State state) {
 	return legalBoard;
 }
 
-Uint64 makeLegalOpponentBoard(const State state) {
-	const Uint64 horizontalBoard = state.getPlayerBoard() & 0x7e7e7e7e7e7e7e7e;
-	const Uint64 verticalBoard = state.getPlayerBoard() & 0x00FFFFFFFFFFFF00;
-	const Uint64 allSideBoard = state.getPlayerBoard() & 0x007e7e7e7e7e7e00;
-	const Uint64 blankBoard = ~(state.getPlayerBoard() | state.getOpponentBoard());
-	Uint64 tmp;
-	Uint64 legalBoard;
-
-	// 左
-	tmp = horizontalBoard & (state.getOpponentBoard() << 1);
-	for (int i = 0; i < 5; i++) {
-		tmp |= horizontalBoard & (tmp << 1);
-	}
-	legalBoard = blankBoard & (tmp << 1);
-
-	// 右
-	tmp = horizontalBoard & (state.getOpponentBoard() >> 1);
-	for (int i = 0; i < 5; i++) {
-		tmp |= horizontalBoard & (tmp >> 1);
-	}
-	legalBoard |= blankBoard & (tmp >> 1);
-
-	// 上
-	tmp = verticalBoard & (state.getOpponentBoard() << 8);
-	for (int i = 0; i < 5; i++) {
-		tmp |= verticalBoard & (tmp << 8);
-	}
-	legalBoard |= blankBoard & (tmp << 8);
-
-	// 下
-	tmp = verticalBoard & (state.getOpponentBoard() >> 8);
-	for (int i = 0; i < 5; i++) {
-		tmp |= verticalBoard & (tmp >> 8);
-	}
-	legalBoard |= blankBoard & (tmp >> 8);
-
-	// 右上
-	tmp = allSideBoard & (state.getOpponentBoard() << 7);
-	for (int i = 0; i < 5; i++) {
-		tmp |= allSideBoard & (tmp << 7);
-	}
-	legalBoard |= blankBoard & (tmp << 7);
-
-	// 左上
-	tmp = allSideBoard & (state.getOpponentBoard() << 9);
-	for (int i = 0; i < 5; i++) {
-		tmp |= allSideBoard & (tmp << 9);
-	}
-	legalBoard |= blankBoard & (tmp << 9);
-
-	// 右下
-	tmp = allSideBoard & (state.getOpponentBoard() >> 9);
-	for (int i = 0; i < 5; i++) {
-		tmp |= allSideBoard & (tmp >> 9);
-	}
-	legalBoard |= blankBoard & (tmp >> 9);
-
-	// 左下
-	tmp = allSideBoard & (state.getOpponentBoard() >> 7);
-	for (int i = 0; i < 5; i++) {
-		tmp |= allSideBoard & (tmp >> 7);
-	}
-	legalBoard |= blankBoard & (tmp >> 7);
-
-
-	return legalBoard;
-}
-
+// 確定石のビットボードを作成
 Uint64 makeConfirmBoard(const State state) {
 	
 	const Uint64 PlayerBoard = state.getPlayerBoard() & 0x8100000000000081;
@@ -260,46 +189,8 @@ Uint64 makeConfirmBoard(const State state) {
 
 }
 
-Uint64 makeConfirmOpponentBoard(const State state) {
 
-	const Uint64 PlayerBoard = state.getOpponentBoard() & 0x8100000000000081;
-	Uint64 ConfirmBoard = PlayerBoard;
-	if (ConfirmBoard == 0) return ConfirmBoard;
-
-
-	// 上
-	Uint64 tmp = PlayerBoard & 0x0000000000000081;
-	for (int i = 0; i < 7; i++) {
-		tmp |= (tmp << 8) & state.getOpponentBoard();
-	}
-	ConfirmBoard |= tmp;
-
-	// 下
-	tmp = PlayerBoard & 0x8100000000000000;
-	for (int i = 0; i < 7; i++) {
-		tmp |= (tmp >> 8) & state.getOpponentBoard();
-	}
-	ConfirmBoard |= tmp;
-
-	// 右
-	tmp = PlayerBoard & 0x8000000000000080;
-	for (int i = 0; i < 7; i++) {
-		tmp |= (tmp >> 1) & state.getOpponentBoard();
-	}
-	ConfirmBoard |= tmp;
-
-	// 左
-	tmp = PlayerBoard & 0x0100000000000001;
-	for (int i = 0; i < 7; i++) {
-		tmp |= (tmp << 1) & state.getOpponentBoard();
-	}
-	ConfirmBoard |= tmp;
-
-	return ConfirmBoard;
-
-}
-
-
+// 盤面を表示する
 void showBoard(const Uint64 board) {
 	for (int i = 0; i < BOARD_SIZE2; i++) {
 		std::cout << ((board & (1ULL << i)) != 0);
@@ -309,29 +200,35 @@ void showBoard(const Uint64 board) {
 	}
 }
 
+// 合法手の数を返す関数
 int legalMoveCounter(const State state) {
 	Uint64 board = makeLegalBoard(state);
-	//Uint64 mask = 0x8000000000000000;
-	//int ret = 0;
-	//for (int i = 0; i < BOARD_SIZE2; i++) {
-	//	if (mask & board) ret++;
-	//	mask >>= 1;
-	//}
-	//return ret;
 	return std::bitset<64>(makeLegalBoard(state)).count();
 }
-
+// ゲーム終了判定を行う
 bool is_finished_game(const State state) {
+	// 空きマスがなければ終了
 	if (std::bitset<64>(state.white | state.black).count() == 0) return true;
+	
+	// 手番側に合法手があればゲームは終了していない
 	const int playerLegalMove = legalMoveCounter(state);
 	if (playerLegalMove != 0) return false;
+
+	// PASS後に合法手があるか判定する
+	// 
+	// PASSの操作(手番反転を行う)
 	State state2 = state;
 	state2.turn = !state2.turn;
+	
+	// 相手番側に合法手があればゲームは終了していない
 	const int opponentLegalMove = legalMoveCounter(state2);
 	if (opponentLegalMove != 0) return false;
+
+	// 両者打つ場所がないので終了している
 	return true;
 }
 
+// 合法手のoperatorをvectorに変換
 std::vector<Operator> get_legal_move_vector(const State state) {
 	std::vector<Operator> v;
 	const Uint64 legalBoard = makeLegalBoard(state);

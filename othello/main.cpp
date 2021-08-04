@@ -39,13 +39,16 @@ int main()
 		Operator ope;
 		
 		Uint64 LegalBoard = makeLegalBoard(state);
+		// 手がない時はPASS
 		if (LegalBoard == 0) {
 			ope = 0;
 		}
+		// 手が1手の時はその手を自動で指す
 		else if (std::bitset<64>(~(state.white | state.black)).count() == 1) {
 			ope = LegalBoard;
 		}
-		else if (state.turn == (WHITE == g % 2)) {
+		// 黒のターン
+		else if (state.turn == BLACK) {
 			std::cout << getString(state) << std::endl;
 			std::cout << "Player Move:";
 			std::string S;
@@ -58,6 +61,7 @@ int main()
 				num = S[0] - 'A' + (S[1] - '1') * 8;
 				ope = (1ULL << num);
 			}
+			// 入力が非合法手なら、再度入力を行ってもらう
 			while ((ope & LegalBoard) == 0) {
 				std::cout << S << " is None Move" << std::endl;
 				std::cout << "Player_Move:";
@@ -66,11 +70,13 @@ int main()
 				ope = (1ULL << num);
 			}
 		}
+		// 白のターン
 		else {
 			std::pair<int, Operator> tmp;
 			int remain = std::bitset<64>(~(state.white | state.black)).count();
-			if (remain <= 12) tmp = search.search3(state, endgame_depth, -100000000, 100000000, opt_w1, opt_w2, opt_w3, opt_w4);
-			else tmp = search.search3(state, depth, -100000000, 100000000, opt_w1, opt_w2, opt_w3, opt_w4);
+			// 残り手数が12手以下なら読み切る
+			if (remain <= 12) tmp = search.search(state, endgame_depth, -100000000, 100000000, opt_w1, opt_w2, opt_w3, opt_w4);
+			else tmp = search.search(state, depth, -100000000, 100000000, opt_w1, opt_w2, opt_w3, opt_w4);
 			ope = tmp.second;
 			system("cls");
 			std::cout << "AI Move:" << ope2str(ope) << ", eval = " << tmp.first << std::endl;
@@ -80,6 +86,8 @@ int main()
 
 		
 	}
+
+	// ゲーム結果表示
 	std::cout << getString(state) << std::endl;
 	if (getResult(state) > 0) {
 		std::cout << "PLAYER_WIN" << std::endl;
