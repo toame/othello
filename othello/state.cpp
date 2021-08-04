@@ -25,12 +25,12 @@ State reverse(State state, const Operator ope) {
 	// 8方向それぞれに対して、ひっくり返すかの判定を行う
 	for (int dir = 0; dir < 8; dir++) {
 		Uint64 reverse_bit_ = 0;
-		Uint64 mask = transfer(ope, dir);
+		Uint64 mask = transfer(ope, dir);// 自分の石をdir方向に1つずらす
 
 		// ひっくり返す方向に相手の石がある時、その石のフラグを持つ
 		while (mask != 0 && (mask & opponentBoard) != 0) {
 			reverse_bit_ |= mask;
-			mask = transfer(mask, dir);
+			mask = transfer(mask, dir);// mask をdir方向に１つずらす
 		}
 		// 自分の石で挟めるなら、その方向の石をひっくり返すビットを追加
 		if ((mask & playerBoard) != 0) {
@@ -186,7 +186,7 @@ int legalMoveCounter(const State state) {
 // ゲーム終了判定を行う
 bool is_finished_game(const State state) {
 	// 空きマスがなければ終了
-	if (std::bitset<64>(state.white | state.black).count() == 0) return true;
+	if (std::bitset<64>(~(state.white | state.black)).count() == 0) return true;
 	
 	// 手番側に合法手があればゲームは終了していない
 	const int playerLegalMove = legalMoveCounter(state);

@@ -20,7 +20,8 @@ Operator Search::make_random_next_move(const State state)const {
 
 
 // ”Õ–Ê‚Ìó‘Ô‚©‚ç•]‰¿’l‚ğŒvZ
-int Search::evaluate(const State state, const int w1, const int w2, const int w3, const int w4) {
+int Search::evaluate(const State state) {
+	const int w1 = 10, w2 = 23, w3 = 86, w4 = 37;
 	// ƒQ[ƒ€‚ªI—¹‚µ‚Ä‚¢‚½‚çAÎ‚Ì·‚ğ•]‰¿‚Ì’l‚Æ‚·‚é
  	if (is_finished_game(state)) {
 		int remain = std::bitset<64>(~(state.white | state.black)).count();
@@ -68,9 +69,13 @@ const int order[64] = { 0, 7, 56, 63,
 						9, 14, 49, 54};
 
 // alpha-beta’Tõ‚Ås‚¤
-std::pair<int, Operator> Search::search(State state, int depth, int alpha, int beta, const int w1, const int w2, const int w3, const int w4) {
-	if (depth == 0) return std::make_pair(Search::evaluate(state, w1, w2, w3, w4), 0);				// c‚è’Tõ[‚³‚ª0‚È‚ç•]‰¿
-	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state, w1, w2, w3, w4), 0); // ”Õ–Ê‚ªI—¹‚µ‚Ä‚¢‚½‚ç•]‰¿
+std::pair<int, Operator> Search::search(State state, int depth) {
+	return search_(state, depth, -100000000, 100000000);
+}
+
+std::pair<int, Operator> Search::search_(State state, int depth, int alpha, int beta) {
+	if (depth == 0) return std::make_pair(Search::evaluate(state), 0);				// c‚è’Tõ[‚³‚ª0‚È‚ç•]‰¿
+	if (is_finished_game(state)) return std::make_pair(Search::evaluate(state), 0); // ”Õ–Ê‚ªI—¹‚µ‚Ä‚¢‚½‚ç•]‰¿
 	Operator next_ope = 0;
 	Uint64 legalBoard = makeLegalBoard(state);
 	int first_alpha = -100000000;
@@ -82,7 +87,7 @@ std::pair<int, Operator> Search::search(State state, int depth, int alpha, int b
 		Operator ope = (1ULL << order[i]);
 		if (legalBoard == 0) ope = PASS;
 		State next_state = makeMove(state, ope);
-		const int next_alpha = -Search::search(next_state, depth - 1, -beta, -alpha, w1, w2, w3, w4).first;
+		const int next_alpha = -Search::search_(next_state, depth - 1, -beta, -alpha).first;
 		if (first_alpha < next_alpha) {
 			next_ope = ope;
 			first_alpha = next_alpha;
