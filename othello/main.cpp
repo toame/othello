@@ -72,6 +72,7 @@ int main()
 
 	// ゲーム結果表示
 	std::cout << getString(state) << std::endl;
+	std::cout << "Player:" << std::bitset<64>(state.black).count() << "  AI:" << std::bitset<64>(state.white).count() << std::endl;
 	if (getResult(state) > 0) {
 		std::cout << "PLAYER_WIN" << std::endl;
 	}
