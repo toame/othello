@@ -18,7 +18,6 @@ int main()
 	Search search;
 	State state;
 	
-	int g = 0;
 	while (!is_finished_game(state)) {
 		Operator ope;
 		
@@ -58,8 +57,8 @@ int main()
 		else {
 			std::pair<int, Operator> tmp;
 			int remain = std::bitset<64>(~(state.white | state.black)).count();
-			// 残り手数が12手以下なら読み切る
-			if (remain <= 12) tmp = search.search(state, endgame_depth, -100000000, 100000000, opt_w1, opt_w2, opt_w3, opt_w4);
+			// 残り手数がendgame_depth手以下なら読み切る
+			if (remain <= endgame_depth) tmp = search.search(state, endgame_depth, -100000000, 100000000, opt_w1, opt_w2, opt_w3, opt_w4);
 			else tmp = search.search(state, depth, -100000000, 100000000, opt_w1, opt_w2, opt_w3, opt_w4);
 			ope = tmp.second;
 			system("cls");
