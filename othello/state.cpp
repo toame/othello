@@ -3,40 +3,7 @@
 #include <bitset>
 #include "State.h"
 
-std::string getString(const State state) {
-	std::string str;
-	str += "  ABCDEFGH\n";
-	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
-		int board_num = i;
-		if (i % 8 == 0) {
-			str += (char)('1' + (i / 8));
-			str += " ";
-		}
-		if (state.black & (1ULL << board_num)) {
-			str += 'o';
-		}
-		else if (state.white & (1ULL << board_num)) {
-			str += 'x';
-		}
-		else {
-			str += '_';
-		}
-		if (i % 8 == 7)
-			str += '\n';
-	}
-	return str;
-}
-std::string ope2str(Uint64 ope) {
-	std::string S;
-	for (int i = 0; i < 64; i++) {
-		if ((ope & (1ULL << i)) != 0) {
-			S += (char)((i % 8) + 'A');
-			S += (char)((i / 8) + '1');
-			return S;
-		}
-	}
-	return "PASS";
-}
+// Î‚ğ“Á’è•ûŒü‚É1ˆÚ“®‚³‚¹‚é
 Uint64 transfer(const Operator ope, const int dir) {
 	if (dir == UPPER) return (ope << 8) & 0xffffffffffffff00;
 	else if (dir == UPPER_RIGHT) return (ope << 7) & 0x7f7f7f7f7f7f7f00;
@@ -70,8 +37,8 @@ State reverse(State state, const Operator ope) {
 			reverse_bit |= reverse_bit_;
 		}
 	}
-	playerBoard ^= ope | reverse_bit;
-	opponentBoard ^= reverse_bit;
+	playerBoard ^= ope | reverse_bit;	// ©•ª‚ÌÎ‚É‚Ğ‚Á‚­‚è•Ô‚·‘€ì(+©•ª‚Ì’u‚¢‚½Î‚ğ’Ç‰Á‚·‚é)
+	opponentBoard ^= reverse_bit;		// ‘Šè‚ÌÎ‚ğ‚Ğ‚Á‚­‚è•Ô‚·‘€ì
 	if (state.turn == BLACK) {
 		state.black = playerBoard;
 		state.white = opponentBoard;
@@ -84,7 +51,7 @@ State reverse(State state, const Operator ope) {
 	return state;
 }
 
-
+// operator‚É‘¥‚Á‚ÄŸ‚Ì”Õ–Ê‚ğ¶¬‚·‚é
 State makeMove(State state, const Operator ope) {
 	State next_state = reverse(state, ope);
 	next_state.turn = !next_state.turn;
@@ -250,6 +217,8 @@ std::vector<Operator> get_legal_move_vector(const State state) {
 	}
 	return v;
 }
+
+// Ÿ”sŒ‹‰Ê‚ğ”»’è‚·‚é
 int getResult(const State state) {
 	const int blackScore = std::bitset<64>(state.black).count();
 	const int whiteScore = std::bitset<64>(state.white).count();
@@ -257,4 +226,42 @@ int getResult(const State state) {
 	if (blackScore == 0) return 64 + remain;
 	if (whiteScore == 0) return 64 + remain;
 	return blackScore - whiteScore;
+}
+
+// ”Õ–Ê‚ğ•¶š—ñ‚É•ÏŠ·‚·‚é
+std::string getString(const State state) {
+	std::string str;
+	str += "  ABCDEFGH\n";
+	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+		int board_num = i;
+		if (i % 8 == 0) {
+			str += (char)('1' + (i / 8));
+			str += " ";
+		}
+		if (state.black & (1ULL << board_num)) {
+			str += 'o';
+		}
+		else if (state.white & (1ULL << board_num)) {
+			str += 'x';
+		}
+		else {
+			str += '_';
+		}
+		if (i % 8 == 7)
+			str += '\n';
+	}
+	return str;
+}
+
+// operator‚ğ•¶š—ñ‚É•ÏŠ·‚·‚é
+std::string ope2str(Uint64 ope) {
+	std::string S;
+	for (int i = 0; i < 64; i++) {
+		if ((ope & (1ULL << i)) != 0) {
+			S += (char)((i % 8) + 'A');
+			S += (char)((i / 8) + '1');
+			return S;
+		}
+	}
+	return "PASS";
 }
