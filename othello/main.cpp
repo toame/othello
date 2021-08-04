@@ -3,30 +3,14 @@
 #include <bitset>
 #include <chrono>
 #include <Windows.h>
-//#include "state.h";
 #include "search.h";
-unsigned int randInt2() {
-	static unsigned int tx = 223476789, ty = 362436069, tz = 521288629, tw = 88675123;
-	unsigned int tt = (tx ^ (tx << 11));
-	tx = ty; ty = tz; tz = tw;
-	return (tw = (tw ^ (tw >> 19)) ^ (tt ^ (tt >> 8)));
-}
+
 // 1手読み 952841:4118:43041 勝率96.02% (R+553)
 // 2手読み 987986:996:11018 勝率99.27% (R+853)
 // 3手読み 99525:14:461 勝率99.5% (R+931)
 // 3手読み+終盤6手完全読み 99525:14:461 勝率99.7% (R+1015)
 const int opt_w1 = 10, opt_w2 = 23, opt_w3 = 86, opt_w4 = 37;
-std::string ope2str(Uint64 ope) {
-	std::string S;
-	for (int i = 0; i < 64; i++) {
-		if ((ope & (1ULL << i)) != 0) {
-			S += (char)((i % 8) + 'A');
-			S += (char)((i / 8) + '1');
-			return S;
-		}
-	}
-	return "PASS";
-}
+
 const int depth = 4;			     // 何手先まで読むかの設定
 const int endgame_depth = depth * 2; // 最終版の読み切り深さの設定
 int main()
@@ -44,7 +28,7 @@ int main()
 			ope = 0;
 		}
 		// 手が1手の時はその手を自動で指す
-		else if (std::bitset<64>(~(state.white | state.black)).count() == 1) {
+		else if (std::bitset<64>(LegalBoard).count() == 1) {
 			ope = LegalBoard;
 		}
 		// 黒のターン

@@ -41,6 +41,7 @@ State reverse(State state, const Operator ope);
 Uint64 makeLegalBoard(const State state);
 Uint64 makeConfirmBoard(const State state);
 std::string getString(const State state);
+std::string ope2str(Uint64 ope);
 void showBoard(const Uint64 board);
 int legalMoveCounter(const State state);
 bool is_finished_game(State state);

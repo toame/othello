@@ -26,6 +26,17 @@ std::string getString(const State state) {
 	}
 	return str;
 }
+std::string ope2str(Uint64 ope) {
+	std::string S;
+	for (int i = 0; i < 64; i++) {
+		if ((ope & (1ULL << i)) != 0) {
+			S += (char)((i % 8) + 'A');
+			S += (char)((i / 8) + '1');
+			return S;
+		}
+	}
+	return "PASS";
+}
 Uint64 transfer(const Operator ope, const int dir) {
 	if (dir == UPPER) return (ope << 8) & 0xffffffffffffff00;
 	else if (dir == UPPER_RIGHT) return (ope << 7) & 0x7f7f7f7f7f7f7f00;
