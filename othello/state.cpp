@@ -5,8 +5,13 @@
 
 std::string getString(const State state) {
 	std::string str;
+	str += "  ABCDEFGH\n";
 	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
 		int board_num = i;
+		if (i % 8 == 0) {
+			str += (char)('1' + (i / 8));
+			str += " ";
+		}
 		if (state.black & (1ULL << board_num)) {
 			str += 'o';
 		}

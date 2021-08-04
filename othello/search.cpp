@@ -3,7 +3,7 @@
 #include <bitset>
 #include <algorithm>
 unsigned int randInt() {
-	static unsigned int tx = 123476789, ty = 362436069, tz = 521288629, tw = 88675123;
+	static unsigned int tx = 223476789, ty = 362436069, tz = 521288629, tw = 88675123;
 	unsigned int tt = (tx ^ (tx << 11));
 	tx = ty; ty = tz; tz = tw;
 	return (tw = (tw ^ (tw >> 19)) ^ (tt ^ (tt >> 8)));
@@ -18,10 +18,6 @@ Operator Search::make_random_next_move(const State state)const {
 }
 
 int Search::evaluate(const State state, const int w1, const int w2, const int w3, const int w4) {
-	const int weight1 = 10;
-	const int weight2 = 20;
-	const int weight3 = 100;
-	const int weight4 = 100;
  	if (is_finished_game(state)) {
 		int remain = std::bitset<64>(~(state.white | state.black)).count();
 		if (state.turn == BLACK)
