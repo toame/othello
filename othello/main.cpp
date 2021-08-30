@@ -8,7 +8,7 @@
 // 1手読み 952841:4118:43041 勝率96.02% (R+553)
 // 2手読み 987986:996:11018 勝率99.27% (R+853)
 // 3手読み 99525:14:461 勝率99.5% (R+931)
-// 3手読み+終盤6手完全読み 99525:14:461 勝率99.7% (R+1015)
+// 3手読み+終盤6手完全読み 99697:5:298 勝率99.7% (R+1015)
 
 
 int depth;			     // 何手先まで読むかの設定
@@ -66,27 +66,27 @@ int main()
 		}
 		// 黒のターン
 		else if (state.turn == (BLACK ^ g)) {
-			ope = search.make_random_next_move(state);
+			//ope = search.make_random_next_move(state);
 			std::cout << getString(state) << std::endl;
-			//std::cout << "Player Move:";
-			//std::string S;
-			//std::cin >> S;
-			//int num = 0;
-			//if (S == "RANDOM") {
-			//	ope = search.make_random_next_move(state);
-			//}
-			//else {
-			//	num = S[0] - 'A' + (S[1] - '1') * 8;
-			//	ope = (1ULL << num);
-			//}
-			//// 入力が非合法手なら、再度入力を行ってもらう
-			//while ((ope & LegalBoard) == 0) {
-			//	std::cout << S << " is None Move" << std::endl;
-			//	std::cout << "Player_Move:";
-			//	std::cin >> S;
-			//	num = S[0] - 'A' + (S[1] - '1') * 8;
-			//	ope = (1ULL << num);
-			//}
+			std::cout << "Player Move:";
+			std::string S;
+			std::cin >> S;
+			int num = 0;
+			if (S == "RANDOM") {
+				ope = search.make_random_next_move(state);
+			}
+			else {
+				num = S[0] - 'A' + (S[1] - '1') * 8;
+				ope = (1ULL << num);
+			}
+			// 入力が非合法手なら、再度入力を行ってもらう
+			while ((ope & LegalBoard) == 0) {
+				std::cout << S << " is None Move" << std::endl;
+				std::cout << "Player_Move:";
+				std::cin >> S;
+				num = S[0] - 'A' + (S[1] - '1') * 8;
+				ope = (1ULL << num);
+			}
 		}
 		// 白のターン
 		else {
